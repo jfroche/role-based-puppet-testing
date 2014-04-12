@@ -1,0 +1,58 @@
+require 'rake'
+require 'rspec/core/rake_task'
+require 'colorize'
+require 'json'
+require 'facter'
+
+Facter.loadfacts
+
+$REPORTS  = "./reports"         # Where to store JSON reports
+
+# Return all roles of a given host
+def roles(host)
+  roles = [ "base", Facter.value('role') ]
+  roles
+end
+
+# Special version of RakeTask for serverspec which comes with better
+# reporting
+class ServerspecTask < RSpec::Core::RakeTask
+
+  attr_accessor :target
+
+  # Run our serverspec task. Errors are ignored.
+  def run_task(verbose)
+    system("env TARGET_HOST=#{target} #{spec_command}")
+  end
+
+end
+
+hosts = [Facter.value('hostname')]
+hosts.map! { |host|
+  host.strip!
+  {
+    :name => host,
+    :roles => roles(host),
+  }
+}
+
+desc "Run serverspec to all hosts"
+task :spec => "check:server:all"
+
+namespace :check do
+
+  # Per server tasks
+  namespace :server do
+    desc "Run serverspec to all hosts"
+    task :all => hosts.map { |h| h[:name] }
+    hosts.each do |host|
+      desc "Run serverspec to host #{host[:name]}"
+      ServerspecTask.new(host[:name].to_sym) do |t|
+        dirs = host[:roles] + [ host[:name] ]
+        t.target = host[:name]
+        t.pattern = './spec/{' + dirs.join(",") + '}/*_spec.rb'
+      end
+    end
+  end
+
+end

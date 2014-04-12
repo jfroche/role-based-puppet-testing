@@ -1,0 +1,12 @@
+Gemfile.lock
+.librarian/
+.tmp/
+Puppetfile.lock
+modules/apache/
+modules/concat/
+modules/motd/
+modules/ntp/
+modules/stdlib/
+modules/timezone/
+packer*
+0.5.2_linux_amd64.zip

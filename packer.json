@@ -1,0 +1,44 @@
+{
+  "variables": {
+    "hostname": "{{env `BUILD_HOST`}}",
+    "role": "{{env `BUILD_ROLE`}}"
+  },
+  "builders": [{
+    "type": "docker",
+    "image": "ubuntu",
+    "export_path": "image.tar",
+    "run_command": ["run", "-d", "-i", "-h", "{{user `hostname`}}", "-t", "-v", "{{.Volumes}}", "{{.Image}}", "/bin/bash"]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "script": "scripts/puppet.sh"
+  }, 
+  {
+    "type": "shell",
+    "inline": ["echo role={{user `role`}} > /etc/facter/facts.d/role.txt"]
+  }, 
+  {
+    "type": "file",
+    "source": "hieradata",
+    "destination": "/tmp"
+  }, {
+    "type": "puppet-masterless",
+    "manifest_file": "manifests/site.pp",
+    "hiera_config_path": "tests/hiera.yaml",
+    "module_paths": ["modules"]
+  }, {
+    "type": "file",
+    "source": "tests",
+    "destination": "/tmp"
+  }, {
+    "type": "shell",
+    "script": "scripts/serverspec.sh"
+  }],
+  "post-processors": [
+{
+  "type": "docker-import",
+  "repository": "jfroche/packer-{{user `role`}}",
+  "tag": "0.1"
+}
+	  ]
+}

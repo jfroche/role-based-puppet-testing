@@ -1,0 +1,19 @@
+__default_facts: &default_facts
+  architecture: x86_64
+  kernel: linux
+  ipaddress: 127.0.0.1
+  operatingsystem: Ubuntu
+  operatingsystemrelease: '12.04'
+  osfamily: Debian
+  disable_asserts: true
+  concat_basedir: /tmp
+
+webserver:
+  <<: *default_facts
+  fqdn: foo.local
+  role: webserver
+
+base:
+  <<: *default_facts
+  fqdn: foo.local
+  role: base
