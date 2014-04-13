@@ -18,6 +18,6 @@ lint:
 test:
 	rake spec
 
-web:
+web: test
 	BUILD_HOST="web.affinitic.be" BUILD_ROLE="webserver" ./packer validate packer.json
 	BUILD_HOST="web.affinitic.be" BUILD_ROLE="webserver" ./packer build packer.json
