@@ -1,6 +1,5 @@
 :hierarchy:
   - '%{role}'
-  - '%{hostname}'
   - common
 :backends:
   - yaml
